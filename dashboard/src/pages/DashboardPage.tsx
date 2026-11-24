@@ -8,21 +8,26 @@ import DashboardGrid from '../components/DashboardGrid';
 import ChartCard from '../components/ChartCard';
 import DataTableSection from '../components/DataTableSection';
 import AccidentsTable from '../components/AccidentsTable';
+import Pagination from '../components/Pagination';
 import { sampleAccidents, accidentColumns } from '../data/sampleData';
 
 const ALL = 'Todas';
+const ROWS_PER_PAGE = 5;
 const unique = (key: 'weather_condition' | 'lighting_condition') =>
   [ALL, ...Array.from(new Set(sampleAccidents.map((a) => a[key])))];
 
 export default function DashboardPage() {
   // Estado del contenedor: única fuente de verdad de los filtros.
   const [filters, setFilters] = useState({ weather: ALL, lighting: ALL });
+  const [page, setPage] = useState(1);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const handleFilterChange = (id: string, value: string) =>
+  const handleFilterChange = (id: string, value: string) => {
     setFilters((prev) => ({ ...prev, [id]: value }));
+    setPage(1); // al cambiar un filtro se vuelve a la primera página
+  };
 
   // Datos derivados: se calculan a partir del estado, no se guardan.
   const filtered = sampleAccidents.filter(
@@ -32,6 +37,8 @@ export default function DashboardPage() {
   );
   const totalInjured = filtered.reduce((s, a) => s + a.injuries_total, 0);
   const totalFatal = filtered.reduce((s, a) => s + a.injuries_fatal, 0);
+  const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE);
+  const pageRows = filtered.slice((page - 1) * ROWS_PER_PAGE, page * ROWS_PER_PAGE);
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1.5, md: 3 }, display: 'grid', gap: 2 }}>
@@ -56,7 +63,8 @@ export default function DashboardPage() {
         <ChartCard title="Accidentes por hora del día" />
         <ChartCard title="Principales causas de accidente" />
         <DataTableSection title="Detalle de accidentes">
-          <AccidentsTable columns={accidentColumns} rows={filtered} compact={isMobile} />
+          <AccidentsTable columns={accidentColumns} rows={pageRows} compact={isMobile} />
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </DataTableSection>
       </DashboardGrid>
     </Box>

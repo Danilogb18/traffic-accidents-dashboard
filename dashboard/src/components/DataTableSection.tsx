@@ -9,7 +9,7 @@ interface DataTableSectionProps {
 export default function DataTableSection({ title, children }: DataTableSectionProps) {
   return (
     <Paper variant="outlined" sx={{ p: 2, overflowX: 'auto' }}>
-      <Typography variant="subtitle1" fontWeight={700} gutterBottom>{title}</Typography>
+      <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700 }}>{title}</Typography>
       {children}
     </Paper>
   );

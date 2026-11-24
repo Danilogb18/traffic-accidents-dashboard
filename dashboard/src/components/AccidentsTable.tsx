@@ -10,7 +10,7 @@ interface AccidentsTableProps {
 export default function AccidentsTable({ columns, rows, compact = false }: AccidentsTableProps) {
   const visible = compact ? columns.filter((c) => c.key !== 'prim_contributory_cause') : columns;
   return (
-    <Table size="small">
+    <Table size="small" sx={{ '& .MuiTableCell-root': { px: compact ? 0.75 : 1, fontSize: compact ? '0.8rem' : undefined } }}>
       <TableHead>
         <TableRow sx={{ bgcolor: '#1e3a5f' }}>
           {visible.map((c) => (
@@ -22,7 +22,9 @@ export default function AccidentsTable({ columns, rows, compact = false }: Accid
         {rows.map((r) => (
           <TableRow key={r.id}>
             {visible.map((c) => (
-              <TableCell key={c.key}>{r[c.key]}</TableCell>
+              <TableCell key={c.key} sx={{ whiteSpace: c.key === 'crash_date' ? 'nowrap' : 'normal' }}>
+                {r[c.key]}
+              </TableCell>
             ))}
           </TableRow>
         ))}

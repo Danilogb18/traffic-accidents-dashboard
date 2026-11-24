@@ -14,7 +14,7 @@ export default function DashboardHeader({ title, source }: DashboardHeaderProps)
         justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 0.5,
       }}
     >
-      <Typography variant="h6" component="h1" fontWeight={700}>{title}</Typography>
+      <Typography variant="h6" component="h1" sx={{ fontWeight: 700 }}>{title}</Typography>
       <Typography variant="body2" sx={{ opacity: 0.8 }}>{source}</Typography>
     </Box>
   );

@@ -10,7 +10,7 @@ interface ChartCardProps {
 export default function ChartCard({ title, children }: ChartCardProps) {
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography variant="subtitle1" fontWeight={700} gutterBottom>{title}</Typography>
+      <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 700 }}>{title}</Typography>
       {children ?? (
         <div style={{
           height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center',

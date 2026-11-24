@@ -12,7 +12,7 @@ export default function KpiCard({ label, value, color, formatter }: KpiCardProps
   return (
     <Paper variant="outlined" sx={{ p: 2, borderLeft: `6px solid ${color}` }}>
       <Typography variant="body2" color="text.secondary">{label}</Typography>
-      <Typography variant="h4" fontWeight={700} color="#1e3a5f">{text}</Typography>
+      <Typography variant="h4" sx={{ fontWeight: 700, color: '#1e3a5f' }}>{text}</Typography>
     </Paper>
   );
 }
