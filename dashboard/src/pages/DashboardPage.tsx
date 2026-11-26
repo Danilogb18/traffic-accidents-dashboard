@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Alert, Box, CircularProgress, useMediaQuery, useTheme } from '@mui/material';
 import DashboardHeader from '../components/DashboardHeader';
 import FilterBar from '../components/FilterBar';
 import KpiGrid from '../components/KpiGrid';
@@ -9,20 +9,43 @@ import ChartCard from '../components/ChartCard';
 import DataTableSection from '../components/DataTableSection';
 import AccidentsTable from '../components/AccidentsTable';
 import Pagination from '../components/Pagination';
-import { sampleAccidents, accidentColumns } from '../data/sampleData';
+import { accidentColumns } from '../data/sampleData';
+import { useAccidents } from '../hooks/useAccident';
+import type { Accident } from '../types/accident';
 
 const ALL = 'Todas';
 const ROWS_PER_PAGE = 5;
-const unique = (key: 'weather_condition' | 'lighting_condition') =>
-  [ALL, ...Array.from(new Set(sampleAccidents.map((a) => a[key])))];
+const RECORD_LIMIT = 500;
+
+// Opciones del filtro a partir de los datos recibidos (ya no de sampleData).
+const unique = (data: Accident[], key: 'weather_condition' | 'lighting_condition') =>
+  [ALL, ...Array.from(new Set(data.map((a) => a[key]))).sort()];
 
 export default function DashboardPage() {
-  // Estado del contenedor: única fuente de verdad de los filtros.
+  // 1. Todos los hooks primero, siempre en el mismo orden.
+  const { data: rawData, isLoading, error } = useAccidents(RECORD_LIMIT);
   const [filters, setFilters] = useState({ weather: ALL, lighting: ALL });
   const [page, setPage] = useState(1);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // 2. Recién después, los returns anticipados de carga y error.
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+        <Alert severity="error">No se pudieron cargar los datos desde Firebase: {error}</Alert>
+      </Box>
+    );
+  }
 
   const handleFilterChange = (id: string, value: string) => {
     setFilters((prev) => ({ ...prev, [id]: value }));
@@ -30,7 +53,7 @@ export default function DashboardPage() {
   };
 
   // Datos derivados: se calculan a partir del estado, no se guardan.
-  const filtered = sampleAccidents.filter(
+  const filtered = rawData.filter(
     (a) =>
       (filters.weather === ALL || a.weather_condition === filters.weather) &&
       (filters.lighting === ALL || a.lighting_condition === filters.lighting),
@@ -42,12 +65,15 @@ export default function DashboardPage() {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1.5, md: 3 }, display: 'grid', gap: 2 }}>
-      <DashboardHeader title="Dashboard de Accidentes de Tránsito" source="Kaggle · Traffic Accidents" />
+      <DashboardHeader
+        title="Dashboard de Accidentes de Tránsito"
+        source={`Kaggle · Traffic Accidents · ${RECORD_LIMIT} registros más recientes (Firebase)`}
+      />
 
       <FilterBar
         filters={[
-          { id: 'weather', label: 'Condición climática', options: unique('weather_condition'), value: filters.weather },
-          { id: 'lighting', label: 'Condición de iluminación', options: unique('lighting_condition'), value: filters.lighting },
+          { id: 'weather', label: 'Condición climática', options: unique(rawData, 'weather_condition'), value: filters.weather },
+          { id: 'lighting', label: 'Condición de iluminación', options: unique(rawData, 'lighting_condition'), value: filters.lighting },
         ]}
         onFilterChange={handleFilterChange}
       />

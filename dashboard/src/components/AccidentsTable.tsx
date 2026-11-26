@@ -23,7 +23,7 @@ export default function AccidentsTable({ columns, rows, compact = false }: Accid
           <TableRow key={r.id}>
             {visible.map((c) => (
               <TableCell key={c.key} sx={{ whiteSpace: c.key === 'crash_date' ? 'nowrap' : 'normal' }}>
-                {r[c.key]}
+                {c.key === 'crash_date' ? r.crash_date.slice(0, 10) : r[c.key]}
               </TableCell>
             ))}
           </TableRow>
